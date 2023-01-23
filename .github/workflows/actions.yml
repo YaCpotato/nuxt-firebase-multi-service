@@ -1,18 +1,41 @@
 name: GitHub Actions Demo
 run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
-on: [push]
+
+on:
+  workflow_dispatch:
+    inputs:
+      meal:
+        description: 'Meal'
+        required: true
+        default: 'warning'
+        type: choice
+        options:
+        - カレー
+        - おでん
+        - すきやき
+      text:
+        description: 'free text'
+        type: string
+        required: true
+
 jobs:
-  Explore-GitHub-Actions:
+  log-the-inputs:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-      - name: Check out repository code
-        uses: actions/checkout@v3
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      - name: List files in the repository
-        run: |
-          ls ${{ github.workspace }}
-      - run: echo "🍏 This job's status is ${{ job.status }}."
+      - run: |
+          echo "Meal: $MEAL"
+          echo "Text: $TEXT"
+        env:
+          MEAL: ${{ inputs.meal }}
+          TEXT: ${{ inputs.text }}
+      - uses: actions/checkout@v2
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_CHANNEL: slack-webhook-playground
+          SLACK_COLOR: ${{ job.status }} # or a specific color like 'good' or '#ff00ff'
+          SLACK_ICON: https://www.google.com/url?sa=i&url=https%3A%2F%2Fdic.pixiv.net%2Fa%2F%25E3%2582%25B9%25E3%2583%259A%25E3%2583%25BC%25E3%2582%25B9%25E3%2582%25AD%25E3%2583%25A3%25E3%2583%2583%25E3%2583%2588&psig=AOvVaw22MJTwIDIXJKZHOHGorxWG&ust=1674536533254000&source=images&cd=vfe&ved=0CA8QjRxqFwoTCMD2k-v03PwCFQAAAAAdAAAAABAI
+          SLACK_TITLE: Github ActionsでSlack通知
+          SLACK_MESSAGE: 'にゃー :rocket:'
+          SLACK_USERNAME: 宇宙猫
